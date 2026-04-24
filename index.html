@@ -858,6 +858,7 @@
 <script type="module">
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // ——— Loader fade ———
@@ -963,6 +964,9 @@ scene.add(ground);
 // Load GLB — resolve against the current document so it works from any deploy URL
 const modelUrl = new URL('model.glb', document.baseURI).href;
 const loader = new GLTFLoader();
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/');
+loader.setDRACOLoader(dracoLoader);
 let fallbackMesh = null;
 
 const showFallback = (reason) => {
