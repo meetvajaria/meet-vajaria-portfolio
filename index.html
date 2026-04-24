@@ -1014,32 +1014,36 @@ loader.load(
       }
     });
 
-    // ——— Pose: relaxed professional stance, hands resting in pockets ———
+    // ——— Pose: natural standing stance, arms hanging straight at the sides ———
     // Mixamo-style humanoid rig. rotateZ / rotateY multiply onto the bind pose.
     const bones = {};
     model.traverse(n => { if (n.isBone) bones[n.name] = n; });
 
     if (bones.LeftArm) {
-      bones.LeftArm.rotateZ(1.48);   // drop upper arm alongside torso
-      bones.LeftArm.rotateY(0.08);   // tiny forward swing so hand leads toward pocket
-      bones.LeftArm.rotateX(0.05);   // gentle inward tuck against the hip
+      bones.LeftArm.rotateZ(1.35);   // drop upper arm to hang straight beside torso
+      bones.LeftArm.rotateY(0.02);   // barely-there forward swing
     }
     if (bones.LeftForeArm) {
-      bones.LeftForeArm.rotateY(-0.55); // soft elbow bend, hand angles into pocket
+      bones.LeftForeArm.rotateY(-0.08); // almost straight elbow, very soft bend
     }
     if (bones.LeftHand) {
-      bones.LeftHand.rotateY(-0.25);    // orient palm/knuckles toward the hip
+      bones.LeftHand.rotation.set(0, 0, 0); // neutral hand, palm facing thigh
     }
     if (bones.RightArm) {
-      bones.RightArm.rotateZ(-1.48);
-      bones.RightArm.rotateY(-0.08);
-      bones.RightArm.rotateX(0.05);
+      bones.RightArm.rotateZ(-1.35);
+      bones.RightArm.rotateY(-0.02);
     }
     if (bones.RightForeArm) {
-      bones.RightForeArm.rotateY(0.55);
+      bones.RightForeArm.rotateY(0.08);
     }
     if (bones.RightHand) {
-      bones.RightHand.rotateY(0.25);
+      bones.RightHand.rotation.set(0, 0, 0);
+    }
+    if (bones.LeftShoulder) {
+      bones.LeftShoulder.rotation.set(0, 0, 0); // ensure shoulders hang naturally
+    }
+    if (bones.RightShoulder) {
+      bones.RightShoulder.rotation.set(0, 0, 0);
     }
 
     scene.add(model);
