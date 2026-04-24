@@ -955,19 +955,38 @@ ground.position.y = -0.05;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// Load GLB
+// Load GLB — resolve against the current document so it works from any deploy URL
+const modelUrl = new URL('model.glb', document.baseURI).href;
 const loader = new GLTFLoader();
+let fallbackMesh = null;
+
+const showFallback = (reason) => {
+  if (fallbackMesh) return;
+  console.warn('GLB fallback:', reason);
+  const geo = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xc9a84c, roughness: 0.4, metalness: 0.6 });
+  fallbackMesh = new THREE.Mesh(geo, mat);
+  fallbackMesh.position.y = 1;
+  scene.add(fallbackMesh);
+};
+
 loader.load(
-  './model.glb',
+  modelUrl,
   (gltf) => {
     const model = gltf.scene;
+
+    // Remove fallback if it was shown during a slow/failed load
+    if (fallbackMesh) {
+      scene.remove(fallbackMesh);
+      fallbackMesh = null;
+    }
 
     // Center and scale the model
     const box = new THREE.Box3().setFromObject(model);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
 
-    const maxDim = Math.max(size.x, size.y, size.z);
+    const maxDim = Math.max(size.x, size.y, size.z) || 1;
     const scale = 2.5 / maxDim;
     model.scale.setScalar(scale);
 
@@ -979,21 +998,21 @@ loader.load(
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        if (child.material) {
+          child.material.needsUpdate = true;
+          // Ensure materials render even if glTF declared them as unlit oddly
+          if (child.material.transparent && child.material.opacity === 0) {
+            child.material.opacity = 1;
+            child.material.transparent = false;
+          }
+        }
       }
     });
 
     scene.add(model);
   },
   undefined,
-  (err) => {
-    // Fallback: show silhouette shape if model fails
-    console.warn('GLB load error:', err);
-    const geo = new THREE.CapsuleGeometry(0.4, 1.2, 8, 16);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xc9a84c, roughness: 0.4, metalness: 0.6 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.y = 1;
-    scene.add(mesh);
-  }
+  (err) => showFallback(err && (err.message || err.type) || 'unknown error')
 );
 
 // Resize handler
