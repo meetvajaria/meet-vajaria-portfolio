@@ -1014,29 +1014,33 @@ loader.load(
       }
     });
 
-    // ——— Pose: arms crossed in front of chest ———
-    // Mixamo-style humanoid rig (bones already confirmed in model.glb).
-    // rotateZ / rotateY multiply onto the bind pose, so these are deltas.
+    // ——— Pose: relaxed professional stance, hands resting in pockets ———
+    // Mixamo-style humanoid rig. rotateZ / rotateY multiply onto the bind pose.
     const bones = {};
     model.traverse(n => { if (n.isBone) bones[n.name] = n; });
 
     if (bones.LeftArm) {
-      bones.LeftArm.rotateZ(1.35);   // swing upper arm down from T-pose
-      bones.LeftArm.rotateY(0.55);   // swing it forward toward centerline
+      bones.LeftArm.rotateZ(1.48);   // drop upper arm alongside torso
+      bones.LeftArm.rotateY(0.08);   // tiny forward swing so hand leads toward pocket
+      bones.LeftArm.rotateX(0.05);   // gentle inward tuck against the hip
     }
     if (bones.LeftForeArm) {
-      bones.LeftForeArm.rotateY(-2.0); // tight elbow bend — forearm across chest
+      bones.LeftForeArm.rotateY(-0.55); // soft elbow bend, hand angles into pocket
+    }
+    if (bones.LeftHand) {
+      bones.LeftHand.rotateY(-0.25);    // orient palm/knuckles toward the hip
     }
     if (bones.RightArm) {
-      bones.RightArm.rotateZ(-1.35);
-      bones.RightArm.rotateY(-0.55);
+      bones.RightArm.rotateZ(-1.48);
+      bones.RightArm.rotateY(-0.08);
+      bones.RightArm.rotateX(0.05);
     }
     if (bones.RightForeArm) {
-      bones.RightForeArm.rotateY(2.0);
+      bones.RightForeArm.rotateY(0.55);
     }
-    // Slight shoulder pullback so the crossed forearms sit naturally on the chest
-    if (bones.LeftShoulder) bones.LeftShoulder.rotateZ(0.15);
-    if (bones.RightShoulder) bones.RightShoulder.rotateZ(-0.15);
+    if (bones.RightHand) {
+      bones.RightHand.rotateY(0.25);
+    }
 
     scene.add(model);
   },
