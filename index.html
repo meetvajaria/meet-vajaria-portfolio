@@ -256,7 +256,10 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 80% 50%, rgba(201,168,76,0.08) 0%, transparent 60%);
+    background:
+      radial-gradient(ellipse at 70% 40%, rgba(232,201,122,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 30% 80%, rgba(201,110,60,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 100%, rgba(180,90,40,0.12) 0%, transparent 70%);
     pointer-events: none;
   }
 
@@ -919,24 +922,26 @@ controls.autoRotate = true;
 controls.autoRotateSpeed = 0.8;
 controls.target.set(0, 1, 0);
 
-// Lighting
-const ambientLight = new THREE.AmbientLight(0xfff8e7, 0.4);
+// Lighting — warm toned
+const ambientLight = new THREE.AmbientLight(0xffe6bf, 0.55);
 scene.add(ambientLight);
 
-const keyLight = new THREE.DirectionalLight(0xfff4d0, 2.5);
+const keyLight = new THREE.DirectionalLight(0xfff0c8, 2.6);
 keyLight.position.set(3, 5, 3);
 keyLight.castShadow = true;
 scene.add(keyLight);
 
-const rimLight = new THREE.DirectionalLight(0x3b82f6, 0.8);
+// Warm amber rim instead of blue
+const rimLight = new THREE.DirectionalLight(0xe8a25a, 1.1);
 rimLight.position.set(-3, 2, -2);
 scene.add(rimLight);
 
-const fillLight = new THREE.PointLight(0xc9a84c, 1.2, 8);
+const fillLight = new THREE.PointLight(0xc9a84c, 1.4, 9);
 fillLight.position.set(-2, 1, 2);
 scene.add(fillLight);
 
-const groundLight = new THREE.PointLight(0xffffff, 0.3, 5);
+// Warm uplight for a sunset/candlelit feel
+const groundLight = new THREE.PointLight(0xffb06a, 0.55, 6);
 groundLight.position.set(0, -1, 1);
 scene.add(groundLight);
 
@@ -1008,6 +1013,30 @@ loader.load(
         }
       }
     });
+
+    // ——— Pose: arms crossed in front of chest ———
+    // Mixamo-style humanoid rig (bones already confirmed in model.glb).
+    // rotateZ / rotateY multiply onto the bind pose, so these are deltas.
+    const bones = {};
+    model.traverse(n => { if (n.isBone) bones[n.name] = n; });
+
+    if (bones.LeftArm) {
+      bones.LeftArm.rotateZ(1.35);   // swing upper arm down from T-pose
+      bones.LeftArm.rotateY(0.55);   // swing it forward toward centerline
+    }
+    if (bones.LeftForeArm) {
+      bones.LeftForeArm.rotateY(-2.0); // tight elbow bend — forearm across chest
+    }
+    if (bones.RightArm) {
+      bones.RightArm.rotateZ(-1.35);
+      bones.RightArm.rotateY(-0.55);
+    }
+    if (bones.RightForeArm) {
+      bones.RightForeArm.rotateY(2.0);
+    }
+    // Slight shoulder pullback so the crossed forearms sit naturally on the chest
+    if (bones.LeftShoulder) bones.LeftShoulder.rotateZ(0.15);
+    if (bones.RightShoulder) bones.RightShoulder.rotateZ(-0.15);
 
     scene.add(model);
   },
